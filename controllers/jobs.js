@@ -137,7 +137,7 @@ const showStats = async (req, res) => {
   }, {});
   console.log(stats);
 
-  let defaultState = {
+  const defaultState = {
     pending: stats.pending || 0,
     interview: stats.interview || 0,
     declined: stats.declined || 0,
@@ -176,7 +176,8 @@ const showStats = async (req, res) => {
     },
   ]);
 
-  monthlyApplications = monthlyApplications.map(function (item) {
+  monthlyApplications = monthlyApplications
+    .map(function (item) {
     const {
       _id:
       {
