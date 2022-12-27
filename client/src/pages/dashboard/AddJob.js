@@ -9,7 +9,6 @@ import {
   editJob,
 } from '../../features/job/jobSlice';
 import { useEffect } from 'react';
-
 const AddJob = () => {
   const {
     isLoading,

@@ -7,7 +7,7 @@ const moment = require('moment');
 const getAllJobs = async (req, res) => {
   const { search, status, jobType, sort } = req.query;
 
-  let queryObject = {
+  const queryObject = {
     createdBy: req.user.userId
   };
 
@@ -44,16 +44,19 @@ const getAllJobs = async (req, res) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
   const skip = (page - 1) * limit;
-
+  
   result = result.skip(skip).limit(limit);
   
   const jobs = await result;
   
   const totalJobs = await Job.countDocuments(queryObject);
-  const numOfPage = Math.ceil(totalJobs / limit);
+  const numOfPages = Math.ceil(totalJobs / limit);
+  console.log(page, limit, skip);
   
-  res.status(StatusCodes.OK).json({ jobs, totalJobs, numOfPage });
-}
+  res.status(StatusCodes.OK).json({ jobs, totalJobs, numOfPages });
+};
+
+
 const getJob = async (req, res) => {
   const {
     user: { userId },
@@ -137,12 +140,12 @@ const showStats = async (req, res) => {
   }, {});
   console.log(stats);
 
-  const defaultState = {
+  const defaultStats = {
     pending: stats.pending || 0,
     interview: stats.interview || 0,
     declined: stats.declined || 0,
   }
-  console.log(defaultState);
+  console.log(defaultStats);
 
   let monthlyApplications = await Job.aggregate([
     {
@@ -154,10 +157,10 @@ const showStats = async (req, res) => {
       $group: {
         _id: {
           year: {
-            $year: 'createdAt'
+            $year: '$createdAt'
           },
           month: {
-            $month: 'createdAt'
+            $month: '$createdAt'
           }
         },
         count: {
@@ -179,13 +182,13 @@ const showStats = async (req, res) => {
   monthlyApplications = monthlyApplications
     .map(function (item) {
     const {
-      _id:
-      {
+      _id:{
         year,
         month
       },
       count,
     } = item;
+      console.log(item);
 
     const date = moment()
       .month(month - 1)
@@ -199,7 +202,7 @@ const showStats = async (req, res) => {
   console.log(monthlyApplications);
   
   res.status(StatusCodes.OK).json({
-    defaultState,
+    defaultStats,
     monthlyApplications,
   })
 };
